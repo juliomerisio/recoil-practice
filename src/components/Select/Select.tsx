@@ -31,6 +31,7 @@ export const Select = () => {
       placeholder="Select a tag"
       optionFilterProp="children"
       onChange={onChange}
+      allowClear
       filterOption={(input, option) =>
         option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
       }

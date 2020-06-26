@@ -53,13 +53,17 @@ export type Tool = {
   title: string;
   link: string;
   description: string;
-  tags: string[];
+  tags: string;
 };
 
 const Tags = styled.div``;
 
 const Card = ({ data }: CardProps) => {
-  const { title, link, description, tags, id } = data;
+  const { title, link, description, tags: stringTags, id } = data;
+
+  const tags = React.useMemo(() => {
+    return stringTags.replace(/\s/g, '').split(',');
+  }, [stringTags]);
 
   const onDelete = React.useCallback(() => deleteToolById(id), [id]);
 

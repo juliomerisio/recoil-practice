@@ -1,20 +1,18 @@
 import { selector } from 'recoil';
-import { map, flatten, pipe, uniq, toUpper } from 'ramda';
+import { map, flatten, pipe, uniq } from 'ramda';
 import { getTools } from '../../services/tools';
-import { delay } from '../../utils/delay';
 import { Tool } from '../ToolsList';
 
 export const selectOptions = selector({
   key: 'SelectOptions',
   get: async () => {
-    await delay(2000);
     const { data } = await getTools();
 
     const filters = pipe(
       map((item: Tool) => item?.tags),
+      map((item) => item.replace(/\s/g, '').split(',')),
       flatten,
-      uniq,
-      map(toUpper)
+      uniq
     )(data);
 
     return filters || ([] as string[]);

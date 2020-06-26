@@ -3,14 +3,11 @@ import qs from 'qs';
 import { Tool } from '.';
 import { searchState } from '../SearchBar/SearchBar.atom';
 import { getTools } from '../../services/tools';
-import { delay } from '../../utils/delay';
 import { tagState } from '../Select/Select.atom';
 
 const ToolListQuery = selectorFamily({
   key: 'ToolListQuery',
-  get: (query: string) => async () => {
-    await delay(2000);
-
+  get: (query) => async () => {
     const { data } = await getTools(query);
 
     const totalCount = data?.length || 0;
