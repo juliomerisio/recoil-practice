@@ -1,5 +1,6 @@
 import { createGlobalStyle } from 'styled-components';
-import 'antd/lib/checkbox/style/index.css';
+
+import 'antd/dist/antd.css';
 
 export default createGlobalStyle`
 
@@ -39,11 +40,13 @@ export default createGlobalStyle`
   h1 {
     font-size: 42px;
     line-height: 50px;
-    color: var(--primary)
+    color: var(--primary);
+    font-weight: bold;
   }
   h2 {
     font-size: 36px;
     line-height: 40px;
+    font-weight: bold;
   }
   h3 {
     font-size: 30px;

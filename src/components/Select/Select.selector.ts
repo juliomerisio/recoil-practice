@@ -1,12 +1,12 @@
 import { selector } from 'recoil';
 import { map, flatten, pipe, uniq } from 'ramda';
-import { getTools } from '../../services/tools';
 import { Tool } from '../ToolsList';
+import { optmisticState } from '../Optmistic/optmistic.atom';
 
 export const selectOptions = selector({
   key: 'SelectOptions',
-  get: async () => {
-    const { data } = await getTools();
+  get: async ({ get }) => {
+    const data = get(optmisticState);
 
     const filters = pipe(
       map((item: Tool) => item?.tags),

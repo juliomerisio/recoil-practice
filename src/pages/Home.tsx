@@ -2,8 +2,11 @@ import React from 'react';
 
 import styled from 'styled-components';
 import ContentLoader from 'react-content-loader';
+import { useRecoilState } from 'recoil';
 import ToolsList from '../components/ToolsList';
 import SearchBar from '../components/SearchBar';
+import { useKeyPress } from '../hooks/useKeyPress';
+import { modalState } from '../components/Form/Form.atoms';
 
 const Container = styled.div`
   width: 100%;
@@ -36,6 +39,14 @@ const Loading = () => (
 );
 
 const Home = () => {
+  const [isModalOpen, setIsModalOpen] = useRecoilState(modalState);
+  const keyAdd = useKeyPress('Control');
+
+  React.useEffect(() => {
+    if (keyAdd) {
+      setIsModalOpen(!isModalOpen);
+    }
+  }, [keyAdd]);
   return (
     <Container>
       <Content>

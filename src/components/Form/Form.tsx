@@ -5,7 +5,9 @@ import { useFormik } from 'formik';
 import { Button } from '../Button';
 import Modal from '../Modal';
 import Tag from '../Tag';
-import { modalState, formState } from './Form.atoms';
+import { modalState } from './Form.atoms';
+import { createTool } from '../../services/tools';
+import { optmisticState } from '../Optmistic/optmistic.atom';
 
 const FormContainer = styled.form`
   width: 100%;
@@ -51,47 +53,51 @@ const TextArea = styled.textarea`
   }
 `;
 
-interface FormData {
-  name: string;
+export interface FormProps {
+  title: string;
   description: string;
   link: string;
   tags: string[];
 }
+
 const Form = () => {
   const [isOpen, setIsOpen] = useRecoilState(modalState);
-  const [initialValues, set] = useRecoilState(formState);
+  const [list, setOptmistic] = useRecoilState(optmisticState);
 
   const onSubmit = React.useCallback(
-    (data: FormData) => {
-      set(data);
+    async (data: FormProps) => {
+      const tool = { ...data, tags: data.tags.join() };
+      setOptmistic([{ ...tool, id: '12' }, ...list]);
+      setIsOpen(false);
+      try {
+        await createTool(tool);
+      } catch (error) {}
     },
-    [set]
+    [list, setOptmistic]
   );
 
-  const {
-    handleSubmit,
-    handleChange,
-    values,
-    // touched,
-    // errors,
-    // resetForm,
-    setFieldValue,
-  } = useFormik({
-    initialValues,
+  const { handleSubmit, handleChange, values, setFieldValue } = useFormik({
+    initialValues: {
+      title: '',
+      link: '',
+      description: '',
+      tags: [] as string[],
+    },
     onSubmit,
   });
 
   return (
     <Modal isOpen={isOpen} closeAction={() => setIsOpen(false)}>
-      <FormContainer onSubmit={handleSubmit}>
+      <FormContainer onSubmit={handleSubmit} autoComplete="off">
         <Input
-          placeholder="Name"
-          name="name"
-          value={values.name}
+          placeholder="Title"
+          name="title"
+          value={values.title}
           onChange={handleChange}
-          autoComplete="false"
+          autoComplete="off"
         />
         <Input
+          autoComplete="off"
           placeholder="Link"
           name="link"
           value={values.link}

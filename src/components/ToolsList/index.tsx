@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import styled from 'styled-components';
-import { useRecoilValue } from 'recoil';
+import { useRecoilValue, useRecoilState, useResetRecoilState } from 'recoil';
 import { MdDelete } from 'react-icons/md';
 import { toolListState } from './ToolList.selectors';
-import { deleteToolById } from '../../services/tools';
+import { deleteToolById, getTools } from '../../services/tools';
+import { optmisticState } from '../Optmistic/optmistic.atom';
 
 const Container = styled.div``;
 const CardContainer = styled.div`
@@ -58,14 +59,20 @@ export type Tool = {
 
 const Tags = styled.div``;
 
-const Card = ({ data }: CardProps) => {
-  const { title, link, description, tags: stringTags, id } = data;
+const Card = ({
+  data: { title, link, description, tags: stringTags },
+}: CardProps) => {
+  const [list, setOptmistic] = useRecoilState(optmisticState);
 
   const tags = React.useMemo(() => {
     return stringTags.replace(/\s/g, '').split(',');
   }, [stringTags]);
 
-  const onDelete = React.useCallback(() => deleteToolById(id), [id]);
+  const onDelete = React.useCallback(async () => {
+    const removeToolFromList = list.filter((tool) => tool.title !== title);
+    setOptmistic(removeToolFromList);
+    await deleteToolById(title);
+  }, [title, list, setOptmistic]);
 
   return (
     <CardContainer>
@@ -88,11 +95,21 @@ const Card = ({ data }: CardProps) => {
 };
 
 const ToolsList = () => {
-  const { list } = useRecoilValue(toolListState);
+  const params = useRecoilValue(toolListState);
+  const [tools, optmistic] = useRecoilState(optmisticState);
+  const reset = useResetRecoilState(optmisticState);
+  console.log(tools);
+
+  useEffect(() => {
+    getTools(params).then((resp) => {
+      reset();
+      optmistic(resp.data);
+    });
+  }, [optmistic, params]);
 
   return (
     <Container>
-      {list?.map((item: Tool) => (
+      {tools?.map((item: Tool) => (
         <Card key={item.id} data={item} />
       ))}
     </Container>
