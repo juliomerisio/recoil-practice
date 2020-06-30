@@ -37,7 +37,9 @@ export const Select = () => {
       }
     >
       {filters.map((item) => (
-        <Option value={item}>{item}</Option>
+        <Option key={Math.random()} value={item}>
+          {item}
+        </Option>
       ))}
     </MySelect>
   );

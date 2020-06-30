@@ -9,7 +9,7 @@ export const toolListState = selector({
   get: async ({ get }) => {
     const tag = get(tagState);
     const q = get(searchState);
-    let query = {} as { q?: string; tag?: SelectValue }; //eslint-disable-line
+    let query = {} as { q?: string; tag?: SelectValue };
 
     if (q.length > 0) {
       query.q = q;

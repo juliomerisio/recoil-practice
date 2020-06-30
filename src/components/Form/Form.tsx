@@ -2,12 +2,16 @@ import React from 'react';
 import styled from 'styled-components';
 import { useRecoilState } from 'recoil';
 import { useFormik } from 'formik';
+import * as Yup from 'yup';
+import { uuid } from 'uuidv4';
 import { Button } from '../Button';
 import Modal from '../Modal';
 import Tag from '../Tag';
 import { modalState } from './Form.atoms';
-import { createTool } from '../../services/tools';
-import { optmisticState } from '../Optmistic/optmistic.atom';
+import { optmisticState } from '../Optmistic/Optmistic.atom';
+import { create } from '../../services/tools';
+import TextArea from '../TextArea';
+import Input from '../Input';
 
 const FormContainer = styled.form`
   width: 100%;
@@ -19,39 +23,6 @@ const FormContainer = styled.form`
     margin-top: 30px;
   }
 `;
-const Input = styled.input`
-  width: 100%;
-  margin-bottom: 16px;
-  border: 2px solid var(--black);
-  border-radius: 3px;
-  height: 39px;
-  padding: 4px 10px;
-  background: transparent;
-  transition: all 0.1s ease-in;
-  color: var(--primary);
-  &:focus {
-    border: 2px solid var(--primary);
-    color: var(--primary);
-  }
-`;
-
-const TextArea = styled.textarea`
-  width: 100%;
-  margin-bottom: 16px;
-  border: 2px solid var(--black);
-  border-radius: 3px;
-  height: 39px;
-  padding: 4px 10px;
-  background: transparent;
-  transition: all 0.1s ease-in;
-  color: var(--primary);
-  min-height: 120px;
-  resize: none;
-  &:focus {
-    border: 2px solid var(--primary);
-    color: var(--primary);
-  }
-`;
 
 export interface FormProps {
   title: string;
@@ -60,23 +31,59 @@ export interface FormProps {
   tags: string[];
 }
 
+const validationSchema = Yup.object().shape({
+  title: Yup.string().required('Title field is required'),
+  link: Yup.string()
+    .required('Link field is required')
+    .url('Must be a valid url'),
+  description: Yup.string().required('Description field is required'),
+  tags: Yup.array()
+    .of(Yup.string().required('Choose a tag'))
+    .required('Tag field is required'),
+});
+
 const Form = () => {
   const [isOpen, setIsOpen] = useRecoilState(modalState);
   const [list, setOptmistic] = useRecoilState(optmisticState);
 
   const onSubmit = React.useCallback(
     async (data: FormProps) => {
-      const tool = { ...data, tags: data.tags.join() };
-      setOptmistic([{ ...tool, id: '12' }, ...list]);
-      setIsOpen(false);
+      const id = uuid();
+
+      const newTool = { ...data, tags: data.tags.join() };
+
+      const isNameAlreadyTaken = list.find(
+        (tool) => tool?.title === data.title
+      );
+
+      if (isNameAlreadyTaken) {
+        setFieldError('title', 'Choose another title');
+      }
+
+      if (!isNameAlreadyTaken) {
+        setOptmistic([{ ...newTool, id }, ...list]);
+        setIsOpen(false);
+      }
+
       try {
-        await createTool(tool);
-      } catch (error) {}
+        await create(newTool);
+      } catch (error) {
+        const removeTool = list.filter((t) => t.id !== id);
+        setOptmistic(removeTool);
+      }
     },
-    [list, setOptmistic]
+    [list, setOptmistic, setIsOpen]
   );
 
-  const { handleSubmit, handleChange, values, setFieldValue } = useFormik({
+  const {
+    handleSubmit,
+    handleChange,
+    values,
+    setFieldValue,
+    touched,
+    errors,
+    setFieldError,
+  } = useFormik({
     initialValues: {
       title: '',
       link: '',
@@ -84,32 +91,39 @@ const Form = () => {
       tags: [] as string[],
     },
     onSubmit,
+    validationSchema,
   });
 
   return (
     <Modal isOpen={isOpen} closeAction={() => setIsOpen(false)}>
       <FormContainer onSubmit={handleSubmit} autoComplete="off">
         <Input
-          placeholder="Title"
           name="title"
           value={values.title}
+          touched={touched.title}
+          error={errors.title}
           onChange={handleChange}
-          autoComplete="off"
         />
         <Input
-          autoComplete="off"
-          placeholder="Link"
           name="link"
           value={values.link}
+          touched={touched.link}
+          error={errors.link}
           onChange={handleChange}
         />
         <TextArea
-          placeholder="Description"
           name="description"
           value={values.description}
+          touched={touched.description}
+          error={errors.description}
           onChange={handleChange}
         />
-        <Tag onChange={setFieldValue} value={values.tags} />
+        <Tag
+          onChange={setFieldValue}
+          value={values.tags}
+          touched={touched.tags}
+          error={errors.tags}
+        />
         <Button>Add</Button>
       </FormContainer>
     </Modal>

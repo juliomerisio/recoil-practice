@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
-import { useRecoilValue, useRecoilState, useResetRecoilState } from 'recoil';
+import { useRecoilValue, useRecoilState } from 'recoil';
 import { MdDelete } from 'react-icons/md';
 import { toolListState } from './ToolList.selectors';
-import { deleteToolById, getTools } from '../../services/tools';
-import { optmisticState } from '../Optmistic/optmistic.atom';
+import { optmisticState } from '../Optmistic/Optmistic.atom';
+import { remove, read } from '../../services/tools';
 
 const Container = styled.div``;
 const CardContainer = styled.div`
@@ -71,7 +71,7 @@ const Card = ({
   const onDelete = React.useCallback(async () => {
     const removeToolFromList = list.filter((tool) => tool.title !== title);
     setOptmistic(removeToolFromList);
-    await deleteToolById(title);
+    await remove(title);
   }, [title, list, setOptmistic]);
 
   return (
@@ -96,16 +96,16 @@ const Card = ({
 
 const ToolsList = () => {
   const params = useRecoilValue(toolListState);
-  const [tools, optmistic] = useRecoilState(optmisticState);
-  const reset = useResetRecoilState(optmisticState);
-  console.log(tools);
+  const [tools, setOptmistic] = useRecoilState(optmisticState);
 
   useEffect(() => {
-    getTools(params).then((resp) => {
-      reset();
-      optmistic(resp.data);
+    read(params).then((response) => {
+      if (response?.status === 'error') {
+        return console.log(response);
+      }
+      return setOptmistic(response);
     });
-  }, [optmistic, params]);
+  }, [setOptmistic, params]);
 
   return (
     <Container>

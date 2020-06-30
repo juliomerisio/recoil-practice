@@ -1,9 +1,14 @@
 import { SerializableParam } from 'recoil';
-import api from './api';
+import { client } from './client';
 import { Tool } from '../components/ToolsList';
 
-export const getTools = async (params?: SerializableParam) =>
-  api.get<Tool[]>(`/tools?${String(params)}`);
-export const deleteToolById = async (title: string) =>
-  api.delete(`/tools/${title}`);
-export const createTool = async (data: any) => api.post(`/tools`, data);
+async function create(toolItemData: Omit<Tool, 'id'>) {
+  return client('tools', { body: JSON.stringify(toolItemData) });
+}
+async function read(params: SerializableParam = '') {
+  return client(`tools?${String(params)}`);
+}
+async function remove(toolId: string) {
+  return client(`tools/${toolId}`, { method: 'DELETE' });
+}
+export { create, read, remove };

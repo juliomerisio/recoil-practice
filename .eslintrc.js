@@ -44,6 +44,8 @@ module.exports = {
     'prettier',
   ],
   rules: {
+    "no-use-before-define": "off",
+    "prefer-const": "off",
     'react/jsx-one-expression-per-line': 'off',
     "react/jsx-curly-newline": 'off',
     'react/prop-types': 'off',

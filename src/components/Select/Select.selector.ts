@@ -1,7 +1,7 @@
 import { selector } from 'recoil';
 import { map, flatten, pipe, uniq } from 'ramda';
 import { Tool } from '../ToolsList';
-import { optmisticState } from '../Optmistic/optmistic.atom';
+import { optmisticState } from '../Optmistic/Optmistic.atom';
 
 export const selectOptions = selector({
   key: 'SelectOptions',
