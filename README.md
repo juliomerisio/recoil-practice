@@ -37,11 +37,12 @@ Recoil - VUTTR ⚔️
 
 
 ### Server
-1. Enter in the server folder<br />
-2. Execute `yarn install`  to install the dependecies.<br />
-3. Execute `docker-compose up -d ` to start the docker container with postgres.<br />
-4. Execute `yarn typeorm migration:run`<br />
-5. Execute `yarn dev` to start the project<br />
+1. Clone the backend `https://github.com/juliomerisio/recoil-server.git`
+2. Enter in the server folder `cd recoil-server`<br />
+3. Execute `yarn install`  to install the dependecies.<br />
+4. Execute `docker-compose up -d ` to start the docker container with postgres.<br />
+5. Execute `yarn typeorm migration:run`<br />
+6. Execute `yarn dev` to start the project<br />
 
 
 
