@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { SelectValue } from 'antd/lib/select';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import 'antd/es/select/style/index.css';
-import { tagState } from './Select.atom';
+import { selectState } from './Select.atom';
 import { selectOptions } from './Select.selector';
 
 const { Option } = AntdSelect;
@@ -19,7 +19,8 @@ const MySelect = styled(AntdSelect)`
 
 export const Select = () => {
   const filters = useRecoilValue(selectOptions);
-  const setValue = useSetRecoilState(tagState);
+  const setValue = useSetRecoilState(selectState);
+
   const onChange = React.useCallback((value: SelectValue) => setValue(value), [
     setValue,
   ]);

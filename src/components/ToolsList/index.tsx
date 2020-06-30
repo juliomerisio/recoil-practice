@@ -4,7 +4,7 @@ import { useRecoilValue, useRecoilState } from 'recoil';
 import { MdDelete } from 'react-icons/md';
 import { toolListState } from './ToolList.selectors';
 import { optmisticState } from '../Optmistic/Optmistic.atom';
-import { remove, read } from '../../services/tools';
+import { remove } from '../../services/tools';
 
 const Container = styled.div``;
 const CardContainer = styled.div`
@@ -95,17 +95,12 @@ const Card = ({
 };
 
 const ToolsList = () => {
-  const params = useRecoilValue(toolListState);
+  const list = useRecoilValue(toolListState);
   const [tools, setOptmistic] = useRecoilState(optmisticState);
 
   useEffect(() => {
-    read(params).then((response) => {
-      if (response?.status === 'error') {
-        return console.log(response);
-      }
-      return setOptmistic(response);
-    });
-  }, [setOptmistic, params]);
+    setOptmistic(list);
+  }, [setOptmistic, list]);
 
   return (
     <Container>
